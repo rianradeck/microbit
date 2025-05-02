@@ -46,6 +46,7 @@ int main(void) {
     NVIC_EnableIRQ(RADIO_IRQn);
     NRF_RADIO->INTENSET = (RADIO_INTENSET_DISABLED_Enabled << RADIO_INTENSET_DISABLED_Pos);
 
+    puts("HI");
     while(1) {
         __WFE();
     }

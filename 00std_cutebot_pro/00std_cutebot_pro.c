@@ -1,4 +1,5 @@
 #include "nrf52833.h"
+#include <math.h>
 
 /*
 sources:
@@ -121,6 +122,45 @@ void i2c_send(uint8_t* buf, uint8_t buflen) {
     NRF_TWI0->TASKS_STOP     = 1;
 }
 
+void pisca(void){
+for(int i = 0; i < 200;i++){
+i2c_send(I2CBUF_LED_LEFT_WHITE,    sizeof(I2CBUF_LED_LEFT_WHITE));
+    i2c_send(I2CBUF_LED_LEFT_RED,      sizeof(I2CBUF_LED_LEFT_RED));
+    i2c_send(I2CBUF_LED_LEFT_GREEN,    sizeof(I2CBUF_LED_LEFT_GREEN));
+    i2c_send(I2CBUF_LED_LEFT_BLUE,     sizeof(I2CBUF_LED_LEFT_BLUE));
+    i2c_send(I2CBUF_LED_LEFT_OFF,      sizeof(I2CBUF_LED_LEFT_OFF));
+    // led right
+    i2c_send(I2CBUF_LED_RIGHT_WHITE,   sizeof(I2CBUF_LED_RIGHT_WHITE));
+    i2c_send(I2CBUF_LED_RIGHT_RED,     sizeof(I2CBUF_LED_RIGHT_RED));
+    i2c_send(I2CBUF_LED_RIGHT_GREEN,   sizeof(I2CBUF_LED_RIGHT_GREEN));
+    i2c_send(I2CBUF_LED_RIGHT_BLUE,    sizeof(I2CBUF_LED_RIGHT_BLUE));
+    i2c_send(I2CBUF_LED_RIGHT_OFF,     sizeof(I2CBUF_LED_RIGHT_OFF));
+    }}
+
+void turn_right(int time){
+  for (int i = 0;i < time;i++){
+    i2c_send(I2CBUF_MOTOR_LEFT_FWD,    sizeof(I2CBUF_MOTOR_LEFT_FWD));
+    i2c_send(I2CBUF_MOTOR_RIGHT_BACK,  sizeof(I2CBUF_MOTOR_RIGHT_BACK));
+  }
+  i2c_send(I2CBUF_MOTORS_STOP,       sizeof(I2CBUF_MOTORS_STOP));
+}
+
+void turn_left(int time){
+  for (int i = 0;i < time;i++){
+    i2c_send(I2CBUF_MOTOR_LEFT_BACK,   sizeof(I2CBUF_MOTOR_LEFT_BACK));
+    i2c_send(I2CBUF_MOTOR_RIGHT_FWD,   sizeof(I2CBUF_MOTOR_RIGHT_FWD));
+  }
+  i2c_send(I2CBUF_MOTORS_STOP,       sizeof(I2CBUF_MOTORS_STOP));
+}
+
+int wait(void){
+  float a = 1;
+  for(int i = 0;i < 100000;i++){
+    a += sqrt(i);
+  }
+  return a;
+}
+
 int main(void) {
     
     i2c_init();
@@ -145,6 +185,20 @@ int main(void) {
     i2c_send(I2CBUF_LED_RIGHT_GREEN,   sizeof(I2CBUF_LED_RIGHT_GREEN));
     i2c_send(I2CBUF_LED_RIGHT_BLUE,    sizeof(I2CBUF_LED_RIGHT_BLUE));
     i2c_send(I2CBUF_LED_RIGHT_OFF,     sizeof(I2CBUF_LED_RIGHT_OFF));
+
+    int ROTATION = 100;
+    turn_right(ROTATION / 2);
+    pisca();
+    wait();
+    while (1) {
+      turn_left(ROTATION);
+      pisca();
+      wait();
+
+      turn_right(ROTATION);
+      pisca();
+      wait();
+    }
 
     while(1);
 }
